@@ -17,6 +17,10 @@ Fallback if the Google feed has no LK data: put topics in `data/manual_topics.cs
 The project loads settings from a project-root `.env` file. Copy `.env.example` to `.env`
 and set `YOUTUBE_API_KEY=your_key` there. Keep `.env` private; it is ignored by Git.
 Environment variables already set in the shell or deployment environment take precedence.
+Set `TREND_ANALYSIS_LOGS=true` in `.env` to print the analysis pipeline, every topic candidate,
+and its similarity/freshness scores in the terminal running Streamlit. The idea title is logged;
+the optional description is not. Leave it unset or set it to `false` to disable these logs.
+Restart Streamlit after changing `.env` for the setting to take effect.
 
 ## Module B contract for Module F (see `service.analyse`)
 Returns `trend_alignment` (0–1), `label`, `matches` (evidence with dates/sources), `ideas`, `trending_now`.

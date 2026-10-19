@@ -16,6 +16,10 @@ MANUAL_CSV = ROOT / "data" / "manual_topics.csv"   # teammates can drop CSVs her
 GEO = os.getenv("TREND_GEO", "LK")                  # Sri Lanka
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
 
+TREND_ANALYSIS_LOGS = os.getenv("TREND_ANALYSIS_LOGS", "false").strip().lower() in {
+    "1", "true", "yes", "on",
+}
+
 DOMAINS = ["Gaming", "Education", "Cooking"]
 
 # Retrieval score: S = W_SIM * similarity + W_FRESH * freshness  (heuristic, NOT trained)

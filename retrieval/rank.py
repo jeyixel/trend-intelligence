@@ -6,6 +6,7 @@ import re
 from datetime import datetime
 
 import config
+from analysis_logging import LOGGER
 from database import db
 from retrieval import embedder
 
@@ -35,7 +36,8 @@ def lifecycle(t: dict, now: datetime) -> str:
 
 
 def rank_topics(query: str, topics: list[dict], mode: str = "semantic_fresh",
-                k: int = config.TOP_K, now: datetime | None = None) -> list[dict]:
+                k: int = config.TOP_K, now: datetime | None = None,
+                log_candidates: bool = False) -> list[dict]:
     """mode: 'keyword' (baseline 1) | 'semantic' (baseline 2) | 'semantic_fresh' (proposed)."""
     now = now or db.now_utc()
     if not topics:
@@ -52,7 +54,17 @@ def rank_topics(query: str, topics: list[dict], mode: str = "semantic_fresh",
         age_days = (now - db.parse_iso(t["last_seen_at"])).total_seconds() / 86400
         rows.append({**t, "similarity": float(s), "freshness": f, "score": float(score),
                      "age_days": age_days, "lifecycle": lifecycle(t, now)})
-    rows = [r for r in rows if r["similarity"] >= (config.MIN_SIMILARITY if mode != "keyword" else 1e-9)]
+    threshold = config.MIN_SIMILARITY if mode != "keyword" else 1e-9
+    if log_candidates:
+        for row in rows:
+            passed = row["similarity"] >= threshold
+            LOGGER.info(
+                "retrieval.candidate topic=%r source=%s similarity=%.4f freshness=%.4f "
+                "combined_score=%.4f threshold=%.4f passed=%s",
+                row["topic_text"], row["source"], row["similarity"], row["freshness"],
+                row["score"], threshold, passed,
+            )
+    rows = [r for r in rows if r["similarity"] >= threshold]
     rows.sort(key=lambda r: r["score"], reverse=True)
     return rows[:k]
 
