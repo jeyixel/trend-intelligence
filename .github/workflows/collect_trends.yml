@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install requests            # collectors only need requests (no ML libs in CI)
+      - run: pip install requests python-dotenv  # collector dependencies (no ML libs in CI)
       - name: Run collectors
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
