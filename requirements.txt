@@ -1,0 +1,8 @@
+requests>=2.31
+numpy>=1.26
+pandas>=2.0
+scikit-learn>=1.4        # TF-IDF fallback
+streamlit>=1.50
+sentence-transformers>=3.0   # pretrained embeddings (downloads model on first run); optional but recommended
+anthropic>=0.40              # optional: LLM-written angles
+python-dotenv>=1.0           # load local settings and API keys from .env

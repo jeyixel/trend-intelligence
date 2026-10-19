@@ -1,0 +1,31 @@
+name: Collect trends
+on:
+  schedule:
+    - cron: "0 */6 * * *"        # every 6 hours (GitHub may delay scheduled runs)
+  workflow_dispatch: {}           # manual "Run workflow" button for testing
+
+permissions:
+  contents: write                 # needed to commit the updated SQLite file
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install requests            # collectors only need requests (no ML libs in CI)
+      - name: Run collectors
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          TREND_GEO: LK
+        run: python collect.py
+      - name: Commit updated database
+        run: |
+          git config user.name "trend-bot"
+          git config user.email "trend-bot@users.noreply.github.com"
+          git add data/trends.db
+          git diff --cached --quiet || git commit -m "chore: collect trends $(date -u +%FT%TZ)"
+          git push
